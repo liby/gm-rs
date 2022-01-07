@@ -1,0 +1,1 @@
+# Git multiple user config manager
