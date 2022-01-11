@@ -17,9 +17,9 @@ fn main() -> Result<(), std::io::Error> {
 
     for user in config::parse_config().unwrap() {
         table_rows.push(Row::new(vec![
-            TableCell::new_with_alignment(&user.scope, 1, Alignment::Center),
+            TableCell::new(&user.scope),
             TableCell::new_with_alignment(&user.name, 1, Alignment::Center),
-            TableCell::new_with_alignment(&user.email, 1, Alignment::Center),
+            TableCell::new(&user.email),
         ]));
     }
 

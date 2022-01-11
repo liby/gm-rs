@@ -1,6 +1,5 @@
 pub mod config {
     use configparser::ini::Ini;
-    use std::fs;
     use std::path::{Path, PathBuf};
 
     struct Opts {
@@ -56,7 +55,11 @@ pub mod config {
             .iter()
             .filter(|section| section.starts_with("includeif"))
             .collect::<Vec<&String>>();
-        let mut other_config_vec = Vec::new();
+        let mut other_config_vec = vec![GitUser {
+            name: config.get("user", "name").unwrap(),
+            email: config.get("user", "email").unwrap(),
+            scope: String::from("global"),
+        }];
         for section in includeif_sections {
             let mut other_config = Ini::new();
             let path_str = config.get(section, "path").unwrap();
