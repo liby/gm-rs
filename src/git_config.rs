@@ -10,9 +10,9 @@ pub mod config {
 
     #[derive(Debug)]
     pub struct GitUser {
-        name: String,
-        email: String,
-        scope: String,
+        pub name: String,
+        pub email: String,
+        pub scope: String,
     }
 
     pub fn get() -> std::io::Result<PathBuf> {
