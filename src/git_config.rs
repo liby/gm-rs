@@ -1,6 +1,7 @@
 use configparser::ini::Ini;
 use std::io::Result;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use term_table::{
     row::Row,
     table_cell::{Alignment, TableCell},
@@ -66,6 +67,23 @@ impl GitUserCollection {
             .style(TableStyle::extended())
             .rows(table_rows)
             .build();
+
+        let git_user_name = Command::new("git")
+            .arg("config")
+            .arg("user.name")
+            .output()
+            .expect("failed to execute process");
+        let git_user_email = Command::new("git")
+            .arg("config")
+            .arg("user.email")
+            .output()
+            .expect("failed to execute process");
+
+        print!(
+            "Currently used name: {}, email: {}",
+            String::from_utf8_lossy(&git_user_name.stdout).trim(),
+            String::from_utf8_lossy(&git_user_email.stdout),
+        );
 
         println!("{}", table.render());
     }

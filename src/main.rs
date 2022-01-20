@@ -26,21 +26,6 @@ fn main() -> Result<(), std::io::Error> {
                 ),
         )
         .subcommand(
-            App::new("use")
-                .about("Use one group name for user config")
-                .arg(
-                    Arg::new("GROUP NAME")
-                        .takes_value(true)
-                        .conflicts_with("global"),
-                )
-                .arg(
-                    Arg::new("global")
-                        .long("global")
-                        .takes_value(false)
-                        .help("Git global config"),
-                ),
-        )
-        .subcommand(
             App::new("delete")
                 .about("Delete one group")
                 .arg(Arg::new("GROUP NAME").takes_value(true).required(true)),
@@ -54,8 +39,6 @@ fn main() -> Result<(), std::io::Error> {
         }
 
         Some(("set", _arg)) => {}
-
-        Some(("use", _arg)) => {}
 
         Some(("delete", _arg)) => {}
 

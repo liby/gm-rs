@@ -15,6 +15,7 @@ Download from [release page](https://github.com/liby/gm-rs/releases/latest), and
 ```sh
 $ gum list
 
+Currently used name: admin, email: admin@email.com
 ╔═════════════════════════════════════╦═══════════╦═════════════════════════════╗
 ║                Scope                ║    Name   ║            Email            ║
 ╠═════════════════════════════════════╬═══════════╬═════════════════════════════╣
@@ -25,14 +26,6 @@ $ gum list
 ║ includeif "gitdir:~/code/company/"  ║ company   ║ company@email.com           ║
 ╚═════════════════════════════════════╩═══════════╩═════════════════════════════╝
 ```
-
-### Set one group for user config
-```sh
-$ gum use personal
-
-Currently used name=personal email=company@email.com
-```
-
 ## More info
 
 ```sh
@@ -48,5 +41,4 @@ SUBCOMMANDS:
     help      Print this message or the help of the given subcommand(s)
     list      List all the user config group
     set       Set one group for user config
-    use       Use one group name for user config
 ```
