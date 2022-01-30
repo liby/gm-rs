@@ -1,7 +1,11 @@
+use crate::util::{expand_tilde, global_config_path};
 use configparser::ini::Ini;
 use std::io::Result;
-use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::{
+    fs::{self},
+    io::Write,
+};
 use term_table::{
     row::Row,
     table_cell::{Alignment, TableCell},
@@ -89,7 +93,7 @@ impl GitUserCollection {
     }
 
     pub fn get_global_config() -> Result<Ini> {
-        let config_path = Path::new(&dirs::home_dir().unwrap()).join(".gitconfig");
+        let config_path = global_config_path();
 
         if !config_path.exists() {
             return Err(std::io::Error::new(
@@ -110,24 +114,39 @@ impl GitUserCollection {
             )),
         }
     }
-}
 
-fn expand_tilde<P: AsRef<Path>>(path_user_input: P) -> Option<PathBuf> {
-    let p = path_user_input.as_ref();
-    if !p.starts_with("~") {
-        return Some(p.to_path_buf());
+    pub fn set_config(git_user: GitUser, config_path: &str) -> Result<()> {
+        let mut config_file = fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(expand_tilde(&config_path.trim()).unwrap())
+            .unwrap();
+        let data = format!(
+            "
+[user]
+    email = {email}
+    name = {name}",
+            email = git_user.email,
+            name = git_user.name,
+        );
+        write!(config_file, "{}", data)?;
+
+        let file_path = global_config_path();
+        let mut file = fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(file_path)
+            .unwrap();
+
+        let data = format!(
+            "
+[includeIf \"gitdir:{scope}\"]
+    path = {config_path}",
+            scope = git_user.scope.trim(),
+            config_path = config_path.trim(),
+        );
+
+        write!(file, "{}", data)?;
+        Ok(())
     }
-    if p == Path::new("~") {
-        return dirs::home_dir();
-    }
-    dirs::home_dir().map(|mut h| {
-        if h == Path::new("/") {
-            // Corner case: `h` root directory;
-            // don't prepend extra `/`, just drop the tilde.
-            p.strip_prefix("~").unwrap().to_path_buf()
-        } else {
-            h.push(p.strip_prefix("~/").unwrap());
-            h
-        }
-    })
 }

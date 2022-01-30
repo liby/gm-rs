@@ -1,5 +1,10 @@
 mod git_config;
+mod util;
+use std::io;
+
 use clap::{App, AppSettings, Arg};
+
+use crate::git_config::GitUser;
 
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new("gum")
@@ -11,7 +16,6 @@ fn main() -> Result<(), std::io::Error> {
         .subcommand(
             App::new("set")
                 .about("Set one group for user config")
-                .arg(Arg::new("GROUP NAME").takes_value(true).required(true))
                 .arg(
                     Arg::new("name")
                         .long("name")
@@ -38,7 +42,35 @@ fn main() -> Result<(), std::io::Error> {
             config.list();
         }
 
-        Some(("set", _arg)) => {}
+        Some(("set", sub_matches)) => {
+            println!("Please input your setting scope.");
+
+            let mut scope = String::new();
+
+            io::stdin()
+                .read_line(&mut scope)
+                .expect("Failed to read line");
+
+            println!("You setting scope: {}", scope);
+
+            println!("Please input your config path");
+            let mut config_path = String::new();
+
+            io::stdin()
+                .read_line(&mut config_path)
+                .expect("Failed to read line");
+
+            println!("You config path: {}", config_path);
+            git_config::GitUserCollection::set_config(
+                GitUser {
+                    email: sub_matches.value_of("email").unwrap().to_string(),
+                    name: sub_matches.value_of("name").unwrap().to_string(),
+                    scope,
+                },
+                &config_path,
+            )
+            .unwrap();
+        }
 
         Some(("delete", _arg)) => {}
 
