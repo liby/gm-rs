@@ -1,10 +1,15 @@
 mod git_config;
 mod util;
-use std::io;
-
 use clap::{App, AppSettings, Arg};
+use configparser::ini::Ini;
+use std::io;
+use std::{
+    fs::{self},
+    io::Write,
+};
 
 use crate::git_config::GitUser;
+use crate::util::expand_tilde;
 
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new("gum")
@@ -36,10 +41,10 @@ fn main() -> Result<(), std::io::Error> {
         )
         .get_matches();
 
-    let config = git_config::GitUserCollection::new();
     match matches.subcommand() {
         Some(("list", _arg)) => {
-            config.list();
+            let git_user = git_config::GitUserCollection::new();
+            git_user.list();
         }
 
         Some(("set", sub_matches)) => {
@@ -72,7 +77,17 @@ fn main() -> Result<(), std::io::Error> {
             .unwrap();
         }
 
-        Some(("delete", _arg)) => {}
+        Some(("delete", arg)) => {
+            let global_config = git_config::GitUserCollection::get_global_config().unwrap();
+            let group_name = arg.value_of("GROUP NAME").unwrap();
+            let scope_path = &format!("includeIf \"gitdir:{scope}\"", scope = group_name);
+            let scope_config_path = global_config.get(scope_path, "path");
+            let mut scope_config = Ini::new();
+            scope_config
+                .load(expand_tilde(scope_config_path.unwrap()).unwrap())
+                .unwrap();
+            scope_config.remove_section("user");
+        }
 
         _ => println!("Please use the help command to see the available commands"),
     }

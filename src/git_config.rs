@@ -102,7 +102,8 @@ impl GitUserCollection {
             ));
         }
 
-        let mut global_config = Ini::new();
+        let mut global_config = Ini::new_cs();
+
         match config_path.exists() {
             true => {
                 let _load = global_config.load(config_path);
