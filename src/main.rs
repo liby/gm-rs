@@ -41,9 +41,9 @@ fn main() -> Result<(), std::io::Error> {
         )
         .get_matches();
 
+    let git_user = git_config::GitUserCollection::new();
     match matches.subcommand() {
         Some(("list", _arg)) => {
-            let git_user = git_config::GitUserCollection::new();
             git_user.list();
         }
 
@@ -66,27 +66,21 @@ fn main() -> Result<(), std::io::Error> {
                 .expect("Failed to read line");
 
             println!("You config path: {}", config_path);
-            git_config::GitUserCollection::set_config(
-                GitUser {
-                    email: sub_matches.value_of("email").unwrap().to_string(),
-                    name: sub_matches.value_of("name").unwrap().to_string(),
-                    scope,
-                },
-                &config_path,
-            )
-            .unwrap();
+            git_user
+                .set(
+                    GitUser {
+                        email: sub_matches.value_of("email").unwrap().to_string(),
+                        name: sub_matches.value_of("name").unwrap().to_string(),
+                        scope,
+                    },
+                    &config_path,
+                )
+                .unwrap();
         }
 
         Some(("delete", arg)) => {
-            let global_config = git_config::GitUserCollection::get_global_config().unwrap();
             let group_name = arg.value_of("GROUP NAME").unwrap();
-            let scope_path = &format!("includeIf \"gitdir:{scope}\"", scope = group_name);
-            let scope_config_path = global_config.get(scope_path, "path");
-            let mut scope_config = Ini::new();
-            scope_config
-                .load(expand_tilde(scope_config_path.unwrap()).unwrap())
-                .unwrap();
-            scope_config.remove_section("user");
+            git_user.delete(group_name);
         }
 
         _ => println!("Please use the help command to see the available commands"),
