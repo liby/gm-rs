@@ -1,15 +1,9 @@
 mod git_config;
 mod util;
 use clap::{App, AppSettings, Arg};
-use configparser::ini::Ini;
 use std::io;
-use std::{
-    fs::{self},
-    io::Write,
-};
 
 use crate::git_config::GitUser;
-use crate::util::expand_tilde;
 
 fn main() -> Result<(), std::io::Error> {
     let matches = App::new("gum")
